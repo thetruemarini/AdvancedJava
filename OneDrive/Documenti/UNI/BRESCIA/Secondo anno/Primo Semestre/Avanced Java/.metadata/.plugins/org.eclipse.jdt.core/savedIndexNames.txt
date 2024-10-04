@@ -1,0 +1,6 @@
+INDEX VERSION 1.134+C:\Users\riki\OneDrive\Documenti\UNI\BRESCIA\Secondo anno\Primo Semestre\Avanced Java\.metadata\.plugins\org.eclipse.jdt.core
+1041208522.index
+3413725848.index
+992179982.index
+2547539248.index
+1865797976.index
