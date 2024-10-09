@@ -21,6 +21,8 @@ public class PnlKeyPad extends JPanel {
 			this.add(btn);
 			btn.addActionListener(e -> fireActionPermed(e));
 		}
+
+
 	}
 
 	private ArrayList<ActionListener> listenerList = new ArrayList<>();

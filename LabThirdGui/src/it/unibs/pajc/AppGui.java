@@ -3,11 +3,13 @@ package it.unibs.pajc;
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
+import javax.swing.JButton;
 
 public class AppGui {
 
 	private JFrame frame;
 	private JTextField textField;
+	private JButton btnNewButton;
 
 	/**
 	 * Launch the application.
@@ -42,11 +44,15 @@ public class AppGui {
 		frame.getContentPane().setLayout(null);
 		
 		PnlKeyPad pnlKeyPad = new PnlKeyPad();
-		pnlKeyPad.setBounds(112, 77, 223, 531);
+		pnlKeyPad.setBounds(112, 62, 223, 531);
 		frame.getContentPane().add(pnlKeyPad);
 		
+		btnNewButton = new JButton("ENTER");
+		pnlKeyPad.add(btnNewButton);
+		btnNewButton.addActionListener(e -> pnlKeyPad.fireActionPermed(e));
+		
 		textField = new JTextField();
-		textField.setBounds(112, 6, 223, 65);
+		textField.setBounds(112, 0, 223, 65);
 		frame.getContentPane().add(textField);
 		textField.setColumns(10);
 
