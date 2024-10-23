@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="KiboUniBSFpLib-main">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../../../../../../KiboUniBSFpLib-main" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../../../../../../KiboUniBSFpLib-main/src/main/java" />
+      <root url="file://$PROJECT_DIR$/../../../../../../KiboUniBSFpLib-main/src/test/java" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/../../../../../../KiboUniBSFpLib-main" recursive="false" />
+  </library>
+</component>
