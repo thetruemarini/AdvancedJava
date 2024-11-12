@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
 
+import it.unibs.pajc.menu.Menu;
+
 public class WAProtocollProcessor implements Runnable {
     protected Socket client;
     protected BufferedReader in;
@@ -23,6 +25,7 @@ public class WAProtocollProcessor implements Runnable {
             out = new PrintWriter(client.getOutputStream(), true);
 
             login();
+            Menu menu = new Menu();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -39,35 +42,54 @@ public class WAProtocollProcessor implements Runnable {
     protected String name = null;
     protected static HashMap<String, WAProtocollProcessor> clientMap = new HashMap<>();
 
-    protected void login() throws IOException{
-        sendMsg(null, "Benvenuto sul server WAPP di PAJC");
+    protected void login() throws IOException {
+        sendMsg(null, null, "Benvenuto sul server WAPP di PAJC");
 
-        while(name == null){
-            sendMsg(null, "Inserisci il tuo nome utente: ");
+        while (name == null) {
+            sendMsg(null, null, "Inserisci il tuo nome utente: ");
             name = in.readLine();
-            if(name.length()<3){
-              sendMsg(null, "Il nome deve essere almeno di tre caratteri!");;
-              name = null;
+            if (name.length() < 3) {
+                sendMsg(null, null,"Il nome deve essere almeno di tre caratteri!");
+                ;
+                name = null;
             }
 
-            synchronized(clientMap){
-                 if(clientMap.containsKey(name)){
-                    sendMsg(null, "E' già presente questo nome per un client connesso, cambiare nome utente!");
+            synchronized (clientMap) {
+                if (clientMap.containsKey(name)) {
+                    sendMsg(null,null, "E' già presente questo nome per un client connesso, cambiare nome utente!");
                     name = null;
-                 } 
+                }
             }
         }
 
         clientMap.put(name, this);
-        sendMsg(null, String.format("Benvenuto %s!\n", name));
-    
+        sendMsg(null,null, String.format("Benvenuto %s!\n", name));
+
     }
 
-    protected void sendMsg (WAProtocollProcessor sender, String msg){
+    protected void chatTo() throws IOException {
+        String reciverName = null;
+        String msg = null;
+        WAProtocollProcessor reciverProcessor = null;
+        sendMsg(null,null, "Con chi vuoi comunicare?\n");
+        while (reciverProcessor == null) {
+            if(clientMap.containsKey(reciverName)){
+                reciverProcessor = clientMap.get(reciverName);
+                sendMsg(null,null, "Inserire il messaggio:\n");
+                msg = in.readLine();
+            } else ;
+
+            
+
+        }
+
+    }
+
+    protected void sendMsg(WAProtocollProcessor sender, WAProtocollProcessor reciver, String msg) {
         String senderName = sender != null ? sender.name : "*";
-        out.printf("[%s]\t%s\n", senderName, msg);
+        String reciverName = reciver != null ? reciver.name : "*";
+        out.printf("[%s] to [%s]\t%s\n", senderName, reciverName, msg);
         out.flush();
     }
 
-    
 }
