@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
 
+import it.unibs.pajc.color.Colorizer;
 import it.unibs.pajc.menu.Menu;
 
 public class WAProtocollProcessor implements Runnable {
@@ -25,7 +26,7 @@ public class WAProtocollProcessor implements Runnable {
             out = new PrintWriter(client.getOutputStream(), true);
 
             login();
-            Menu menu = new Menu();
+            Menu menu = new Menu(in, out);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -43,20 +44,20 @@ public class WAProtocollProcessor implements Runnable {
     protected static HashMap<String, WAProtocollProcessor> clientMap = new HashMap<>();
 
     protected void login() throws IOException {
-        sendMsg(null, null, "Benvenuto sul server WAPP di PAJC");
+        sendMsg(null, null, Colorizer.ANSI_GREEN + "Benvenuto sul server WAPP di PAJC:" + Colorizer.ANSI_RESET);
 
         while (name == null) {
-            sendMsg(null, null, "Inserisci il tuo nome utente: ");
+            sendMsg(null, this, "Inserisci il tuo nome utente: ");
             name = in.readLine();
             if (name.length() < 3) {
-                sendMsg(null, null,"Il nome deve essere almeno di tre caratteri!");
+                sendMsg(null, this,"Il nome deve essere almeno di tre caratteri!");
                 ;
                 name = null;
             }
 
             synchronized (clientMap) {
                 if (clientMap.containsKey(name)) {
-                    sendMsg(null,null, "E' già presente questo nome per un client connesso, cambiare nome utente!");
+                    sendMsg(null,this, "E' già presente questo nome per un client connesso, cambiare nome utente!");
                     name = null;
                 }
             }
