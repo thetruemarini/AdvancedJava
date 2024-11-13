@@ -26,7 +26,7 @@ public class WAProtocollProcessor implements Runnable {
             out = new PrintWriter(client.getOutputStream(), true);
 
             login();
-            Menu menu = new Menu(in, out);
+            new Menu(in, out, this);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -51,7 +51,6 @@ public class WAProtocollProcessor implements Runnable {
             name = in.readLine();
             if (name.length() < 3) {
                 sendMsg(null, this,"Il nome deve essere almeno di tre caratteri!");
-                ;
                 name = null;
             }
 
@@ -68,19 +67,22 @@ public class WAProtocollProcessor implements Runnable {
 
     }
 
-    protected void chatTo() throws IOException {
+    public void chatTo() throws IOException {
         String reciverName = null;
         String msg = null;
         WAProtocollProcessor reciverProcessor = null;
-        sendMsg(null,null, "Con chi vuoi comunicare?\n");
         while (reciverProcessor == null) {
+            sendMsg(null,this, "Con chi vuoi comunicare?\n");
+            reciverName = in.readLine();
             if(clientMap.containsKey(reciverName)){
                 reciverProcessor = clientMap.get(reciverName);
                 sendMsg(null,null, "Inserire il messaggio:\n");
                 msg = in.readLine();
-            } else ;
+                out2 = new PrintWriter(clientMap.get(reciverProcessor).getClient().getOutputStream());
+                out2.println(msg);
 
-            
+            } else reciverName = null ;
+        
 
         }
 
@@ -91,6 +93,10 @@ public class WAProtocollProcessor implements Runnable {
         String reciverName = reciver != null ? reciver.name : "*";
         out.printf("[%s] to [%s]\t%s\n", senderName, reciverName, msg);
         out.flush();
+    }
+
+    public Socket getClient(){
+        return this.client;
     }
 
 }
