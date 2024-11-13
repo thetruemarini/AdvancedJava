@@ -44,7 +44,7 @@ public class WAProtocollProcessor implements Runnable {
     protected static HashMap<String, WAProtocollProcessor> clientMap = new HashMap<>();
 
     protected void login() throws IOException {
-        sendMsg(null, null, Colorizer.ANSI_GREEN + "Benvenuto sul server WAPP di PAJC:" + Colorizer.ANSI_RESET);
+        sendMsg(null, this, Colorizer.ANSI_GREEN + "Benvenuto sul server WAPP di PAJC:" + Colorizer.ANSI_RESET);
 
         while (name == null) {
             sendMsg(null, this, "Inserisci il tuo nome utente: ");
@@ -63,36 +63,49 @@ public class WAProtocollProcessor implements Runnable {
         }
 
         clientMap.put(name, this);
-        sendMsg(null,null, String.format("Benvenuto %s!\n", name));
+        sendMsg(null,this, String.format("Benvenuto %s!\n", name));
 
     }
 
     public void chatTo() throws IOException {
-        String reciverName = null;
+        String receiverName = null;
         String msg = null;
-        WAProtocollProcessor reciverProcessor = null;
-        while (reciverProcessor == null) {
+        WAProtocollProcessor receiverProcessor = null;
+        while (receiverProcessor == null) {
             sendMsg(null,this, "Con chi vuoi comunicare?\n");
-            reciverName = in.readLine();
-            if(clientMap.containsKey(reciverName)){
-                reciverProcessor = clientMap.get(reciverName);
-                sendMsg(null,null, "Inserire il messaggio:\n");
+            receiverName = in.readLine();
+            if(clientMap.containsKey(receiverName)){
+                receiverProcessor = clientMap.get(receiverName);
+                sendMsg(null,this, "Inserire il messaggio:\n");
                 msg = in.readLine();
-                out2 = new PrintWriter(clientMap.get(reciverProcessor).getClient().getOutputStream());
-                out2.println(msg);
-
-            } else reciverName = null ;
+                sendMsg(null, receiverProcessor, Colorizer.ANSI_BLUE +"Hai un nuovo messagiio:" + Colorizer.ANSI_RESET);
+                sendMsg(this, receiverProcessor, msg);
+                
+            } else {
+                receiverName = null ;
+                sendMsg(null, this, "Destinatario non trovato. Riprova.\n");
+            }
         
 
         }
 
     }
 
-    protected void sendMsg(WAProtocollProcessor sender, WAProtocollProcessor reciver, String msg) {
-        String senderName = sender != null ? sender.name : "*";
-        String reciverName = reciver != null ? reciver.name : "*";
-        out.printf("[%s] to [%s]\t%s\n", senderName, reciverName, msg);
-        out.flush();
+    protected void sendMsg(WAProtocollProcessor sender, WAProtocollProcessor receiver, String msg) throws IOException {
+        // Ottiene il nome del mittente
+        String senderName = (sender != null) ? sender.name : "Server";  // Usa "Server" come nome mittente se è un messaggio del server
+        
+        if (receiver != null) {
+            // Caso: invia il messaggio a un destinatario specifico
+            PrintWriter out2 = new PrintWriter(receiver.getClient().getOutputStream(), true);
+            out2.printf("[%s] to [%s]: %s\n", senderName, receiver.name, msg);
+        } else {
+            // Caso: invia il messaggio a tutti i client (broadcast)
+            for (WAProtocollProcessor clientProcessor : clientMap.values()) {
+                PrintWriter out2 = new PrintWriter(clientProcessor.getClient().getOutputStream(), true);
+                out2.printf("[%s] to [ALL]: %s\n", senderName, msg);
+            }
+        }
     }
 
     public Socket getClient(){
