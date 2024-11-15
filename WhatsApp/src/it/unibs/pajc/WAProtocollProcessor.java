@@ -5,7 +5,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import it.unibs.pajc.color.Colorizer;
 import it.unibs.pajc.menu.Menu;
@@ -14,6 +19,54 @@ public class WAProtocollProcessor implements Runnable {
     protected Socket client;
     protected BufferedReader in;
     protected PrintWriter out;
+    protected boolean running = true;
+    private static HashMap<String, Consumer<WAEvent>> commandMap = new HashMap<>();
+    protected static HashMap<String, WAProtocollProcessor> clientMap = new HashMap<>();
+
+    //blocco di inizializzazione statico
+    static{
+        commandMap.put("!TIME", e -> {
+            try {
+                e.getSender().sendMsg(null, e.getSender(), LocalDateTime.now().toString());
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        });
+       // commandMap.put("!USER_LIST", e -> e.getSender().printClientMap());
+        commandMap.put("!USER_LIST", e -> {
+            try {
+                e.getSender().sendMsg(null, e.getSender(), 
+                clientMap.keySet().stream().collect(Collectors.joining(", ")));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        });
+        commandMap.put("!SEND", e -> {
+            try {
+                e.getSender().sendTo(e.getSender(), e.getParameters(0), e.getParameters(1));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        });
+        commandMap.put("!SEND_ALL", e -> {
+            try {
+                e.getSender().sendToAll(e.getSender(), e.getParameters(0));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        });
+        commandMap.put("!QUIT", e -> {
+            e.getSender().running = false;
+            try {
+                e.getSender().sendMsg(null, e.getSender(), Colorizer.ANSI_RED + "CHIUSURA CLIENT..." + Colorizer.ANSI_RESET);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        });
+
+    }
+
+
 
     public WAProtocollProcessor(Socket client) {
         this.client = client;
@@ -26,12 +79,30 @@ public class WAProtocollProcessor implements Runnable {
             out = new PrintWriter(client.getOutputStream(), true);
 
             login();
-            new Menu(in, out, this);
+          //  new Menu(in, out, this);
 
-        } catch (Exception e) {
+          String request;
+          while(running && (request = in.readLine()) != null){
+            WAEvent e= new WAEvent(this, request);
+            if(e.command == null){
+                sendMsg(null, this, "Commando non riconosciuto!"); 
+                continue;
+          }
+
+          Consumer<WAEvent> command = commandMap.get(e.getCommand());
+
+          if(command == null){
+            sendMsg(null, this, "Comando non valido!");
+          } else{
+            command.accept(e);
+          }
+         }
+        }
+         catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
+                clientMap.remove(name);
                 in.close();
                 out.close();
             } catch (Exception e) {
@@ -41,7 +112,6 @@ public class WAProtocollProcessor implements Runnable {
     }
 
     protected String name = null;
-    protected static HashMap<String, WAProtocollProcessor> clientMap = new HashMap<>();
 
     protected void login() throws IOException {
         sendMsg(null, this, Colorizer.ANSI_GREEN + "Benvenuto sul server WAPP di PAJC:" + Colorizer.ANSI_RESET);
@@ -110,6 +180,28 @@ public class WAProtocollProcessor implements Runnable {
 
     public Socket getClient(){
         return this.client;
+    }
+
+    public void printClientMap() throws IOException{
+        for(Map.Entry<String, WAProtocollProcessor> entry : clientMap.entrySet()){
+            sendMsg(null, this, entry.getKey());
+        }
+    }
+
+    public void sendTo(WAProtocollProcessor sender, String destName, String msg) throws IOException{ //sostituisce chat to
+        WAProtocollProcessor dest = clientMap.get(destName);
+        if(dest == null){ sender.sendMsg(null, sender, "Errore, utente non trovato");}
+        else dest.sendMsg(sender, dest, msg);
+
+    }
+
+    public void sendToAll(WAProtocollProcessor sender, String msg) throws IOException{
+        for(WAProtocollProcessor p : clientMap.values()){
+            if(p!= this){
+                p.sendMsg(sender, null, msg);
+            }
+        }
+
     }
 
 }
