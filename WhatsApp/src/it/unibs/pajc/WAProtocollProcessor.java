@@ -168,12 +168,12 @@ public class WAProtocollProcessor implements Runnable {
         if (receiver != null) {
             // Caso: invia il messaggio a un destinatario specifico
             PrintWriter out2 = new PrintWriter(receiver.getClient().getOutputStream(), true);
-            out2.printf("[%s] to [%s]: %s\n", senderName, receiver.name, msg);
+            out2.printf("[%s] to [%s]: %s\n\r", senderName, receiver.name, msg);
         } else {
             // Caso: invia il messaggio a tutti i client (broadcast)
             for (WAProtocollProcessor clientProcessor : clientMap.values()) {
                 PrintWriter out2 = new PrintWriter(clientProcessor.getClient().getOutputStream(), true);
-                out2.printf("[%s] to [ALL]: %s\n", senderName, msg);
+                out2.printf("[%s] to [ALL]: %s\n\r", senderName, msg);
             }
         }
     }
