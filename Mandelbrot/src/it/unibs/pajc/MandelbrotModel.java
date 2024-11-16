@@ -15,7 +15,7 @@ public class MandelbrotModel {
 
         for (int i = 0; i < res; i++) {
             for (int j = 0; j < res; j++) {
-                Complex c = new Complex(min.re * j * dre, min.im + i * dim);
+                Complex c = new Complex(min.re + j * dre, min.im + i * dim);
 
                 data[i][j] = fMandelbrot(c);
             }

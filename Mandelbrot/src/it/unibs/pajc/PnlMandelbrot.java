@@ -13,7 +13,7 @@ public class PnlMandelbrot extends JPanel {
 
     public PnlMandelbrot() {
         model.eval(new Complex(viewport.getMinX(), viewport.getMinY()),
-                new Complex(viewport.getMaxX(), viewport.getMaxY()), 300); // la res puo essere diminuita se la cpu non
+                new Complex(viewport.getMaxX(), viewport.getMaxY()), 1000); // la res puo essere diminuita se la cpu non
                                                                            // regge
     }
 
