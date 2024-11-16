@@ -5,7 +5,7 @@ import java.util.concurrent.Future;
 
 public class NumeriPrimiApp {
     public static void main(String[] args) throws Exception {
-        long nMax = 1_000_000_000;
+        long nMax = 1_000_000;
         int nTask = 50;
 
         System.err.println("START...");
