@@ -1,6 +1,8 @@
 package it.unibs.pajc;
 
-public class MandelbrotModel {
+import javax.swing.event.ChangeEvent;
+
+public class MandelbrotModel extends BaseModel {
     private double[][] data;
 
     public double[][] getData() {
@@ -8,7 +10,7 @@ public class MandelbrotModel {
     }
 
     public void eval(Complex min, Complex max, int res) {
-        data = new double[res][res];
+        double [][] data = new double[res][res];
 
         double dre = Math.abs(min.re - max.re) / res;
         double dim = Math.abs(min.im - max.im) / res;
@@ -20,6 +22,12 @@ public class MandelbrotModel {
                 data[i][j] = fMandelbrot(c);
             }
         }
+
+        synchronized(this){
+            this.data = data;
+            fireValuesChange(new ChangeEvent(this));
+        }
+
     }
 
     private static double fMandelbrot(Complex c) {
